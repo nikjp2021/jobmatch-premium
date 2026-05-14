@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JobMatch — Premium Part-Time Matching Platform</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@700;800;900&family=Quicksand:wght@400;500;600;700&display=swap');
+    
+    :root {
+      --c-lavender: #C4B5FD; --c-violet: #7C3AED; --c-violet-dark: #4C1D95;
+      --c-pink: #FBCFE8; --c-hotpink: #EC4899; --c-honey: #FDE68A;
+      --c-orange: #F59E0B; --c-matcha: #A7F3D0; --c-cream: #FFFBF7;
+      --c-dark: #1E1B4B; --c-white: #FFFFFF;
+      --glass-bg: rgba(255, 255, 255, 0.6); --glass-border: rgba(255, 255, 255, 0.8);
+      --shadow-sm: 0 2px 8px rgba(124, 58, 237, 0.05);
+      --shadow-md: 0 8px 24px rgba(124, 58, 237, 0.08);
+      --shadow-lg: 0 24px 64px rgba(124, 58, 237, 0.15);
+      --font-head: 'M PLUS Rounded 1c', sans-serif; --font-body: 'Quicksand', sans-serif;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-body); color: var(--c-dark); background-color: var(--c-cream);
+      overflow-x: hidden; line-height: 1.6;
+      cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><text x="0" y="24" font-size="24">✨</text></svg>'), auto;
+    }
+
+    .noise-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none; z-index: 9999; opacity: 0.35;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+
+    .lang-ja { display: none; }
+    html[lang="ja"] .lang-en { display: none; }
+    html[lang="ja"] .lang-ja { display: inline; }
+
+    .mesh-bg {
+      position: fixed; top: -50%; left: -50%; right: -50%; bottom: -50%;
+      z-index: -1; background-size: 100% 100%;
+      background: radial-gradient(circle at 50% 50%, var(--c-pink) 0%, transparent 40%),
+                  radial-gradient(circle at 20% 80%, var(--c-lavender) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 20%, var(--c-honey) 0%, transparent 50%);
+      animation: morph 15s ease-in-out infinite alternate; opacity: 0.3; filter: blur(80px);
+    }
+    @keyframes morph {
+      0% { transform: rotate(0deg) scale(1); }
+      50% { transform: rotate(15deg) scale(1.1) translate(5%, -5%); }
+      100% { transform: rotate(-10deg) scale(1) translate(-5%, 5%); }
+    }
+
+    h1, h2, h3, h4 { font-family: var(--font-head); line-height: 1.15; }
+    .text-outline { color: transparent; -webkit-text-stroke: 1px var(--c-dark); }
+
+    nav {
+      position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+      background: var(--glass-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border); padding: 6px 12px 6px 20px;
+      border-radius: 99px; display: flex; align-items: center; gap: 24px;
+      z-index: 100; box-shadow: var(--shadow-sm); transition: all 0.3s;
+    }
+    nav:hover { box-shadow: var(--shadow-md); transform: translateX(-50%) translateY(-1px); }
+    .logo { font-family: var(--font-head); font-weight: 900; font-size: 18px; color: var(--c-violet-dark); text-decoration: none; display: flex; align-items: center; gap: 6px; }
+    .nav-actions { display: flex; align-items: center; gap: 8px; }
+    
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 8px 16px; border-radius: 99px; font-weight: 700; text-decoration: none;
+      transition: all 0.2s; border: 2px solid var(--c-dark); cursor: pointer; font-size: 13px;
+    }
+    .btn-nav { background: var(--c-dark); color: var(--c-cream); }
+    .btn-nav:hover { background: var(--c-violet); border-color: var(--c-violet); transform: scale(1.02); }
+    
+    .lang-pill { display: flex; background: rgba(255,255,255,0.8); border: 1px solid var(--glass-border); border-radius: 99px; padding: 3px; }
+    .lang-pill button { background: transparent; border: none; padding: 4px 10px; border-radius: 99px; font-weight: 700; font-size: 11px; cursor: pointer; color: var(--c-dark); transition: 0.2s; }
+    .lang-pill button.active { background: var(--c-dark); color: var(--c-cream); }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+    section { padding: 80px 0; position: relative; z-index: 2; }
+
+    /* Hero Section (Split Layout) */
+    .hero { min-height: 80vh; display: flex; align-items: center; padding-top: 120px; padding-bottom: 40px; }
+    .hero-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+    .hero-text { text-align: left; }
+    .hero-title { font-size: clamp(36px, 5vw, 64px); letter-spacing: -0.01em; margin-bottom: 24px; }
+    .hero-title .hollow { color: transparent; -webkit-text-stroke: 2px var(--c-dark); }
+    .hero-title .accent { color: var(--c-violet); }
+    .hero-sub { font-size: 18px; font-weight: 500; color: var(--c-violet-dark); margin-bottom: 40px; }
+    .btn-massive { font-size: 16px; padding: 14px 36px; background: var(--c-hotpink); color: var(--c-white); box-shadow: 4px 4px 0 var(--c-dark); }
+    .btn-massive:hover { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--c-dark); background: var(--c-violet); }
+    
+    .hero-mockup-wrapper {
+      position: relative; border-radius: 40px; overflow: hidden;
+      box-shadow: var(--shadow-lg); border: 6px solid var(--c-white);
+      transform: perspective(1000px) rotateY(-5deg); transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .hero-mockup-wrapper:hover { transform: perspective(1000px) rotateY(0deg) translateY(-8px); }
+    .hero-mockup { width: 100%; display: block; object-fit: cover; }
+
+    /* Trust Banner */
+    .trust-banner {
+      background: var(--glass-bg); backdrop-filter: blur(12px); border-top: 1px solid var(--glass-border); border-bottom: 1px solid var(--glass-border);
+      padding: 32px 0; text-align: center; margin-bottom: 40px;
+    }
+    .trust-banner p { font-size: 14px; font-weight: 700; color: var(--c-violet-dark); margin-bottom: 16px; letter-spacing: 1px; text-transform: uppercase; }
+    .trust-logos { display: flex; justify-content: center; gap: 48px; opacity: 0.5; filter: grayscale(100%); flex-wrap: wrap; }
+    .trust-logos span { font-family: var(--font-head); font-size: 20px; font-weight: 900; }
+
+    /* Features Section */
+    .features-section h2 { text-align: center; font-size: clamp(32px, 4vw, 48px); margin-bottom: 64px; }
+    .features-layout { display: grid; grid-template-columns: 5fr 6fr; gap: 48px; align-items: stretch; }
+    
+    .feature-tabs { display: flex; flex-direction: column; gap: 16px; }
+    .feature-tab { background: var(--glass-bg); backdrop-filter: blur(12px); border: 2px solid transparent; border-radius: 20px; padding: 24px; cursor: pointer; transition: all 0.2s; text-align: left; }
+    .feature-tab:hover { background: rgba(255,255,255,0.9); transform: translateX(4px); }
+    .feature-tab.active { background: var(--c-white); border-color: var(--c-violet); box-shadow: var(--shadow-sm); transform: translateX(12px); }
+    .feature-tab h3 { font-size: 18px; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; color: var(--c-dark); }
+    .feature-tab p { font-size: 14px; color: var(--c-violet-dark); opacity: 0.7; }
+    .feature-tab.active p { opacity: 1; font-weight: 500; }
+
+    .feature-visuals { background: var(--c-white); border: 4px solid var(--c-white); border-radius: 32px; position: relative; overflow: hidden; box-shadow: var(--shadow-lg); min-height: 400px; }
+    .visual-item { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; transform: scale(0.98) translateY(10px); transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); pointer-events: none; }
+    .visual-item.active { opacity: 1; transform: scale(1) translateY(0); pointer-events: auto; }
+    .visual-item img { width: 100%; height: 100%; object-fit: cover; border-radius: 28px; }
+
+    /* Bento Box */
+    .bento-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 40px; }
+    .bento-card { background: var(--glass-bg); backdrop-filter: blur(16px); border: 2px solid var(--c-white); border-radius: 24px; padding: 32px; box-shadow: var(--shadow-sm); transition: all 0.3s; opacity: 0; transform: translateY(20px); }
+    .bento-card.visible { opacity: 1; transform: translateY(0); }
+    .bento-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: var(--c-violet); }
+    .bento-card h3 { font-size: 20px; margin-bottom: 12px; }
+    .bento-card p { font-size: 15px; color: var(--c-violet-dark); }
+    .bento-icon { font-size: 32px; margin-bottom: 20px; background: var(--c-white); width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.04); }
+    .bento-1 { grid-column: span 8; background: linear-gradient(135deg, var(--c-cream), var(--c-lavender)); }
+    .bento-2 { grid-column: span 4; background: linear-gradient(135deg, var(--c-cream), var(--c-matcha)); }
+    .bento-3 { grid-column: span 12; background: linear-gradient(135deg, var(--c-cream), var(--c-honey)); display: flex; align-items: center; gap: 32px; }
+    .bento-3 .bento-content { flex: 1; }
+
+    /* Match */
+    .match-section { background: var(--c-dark); color: var(--c-cream); border-radius: 48px; margin: 0 24px; overflow: hidden; padding: 80px 0; }
+    .match-container { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+    .match-text h2 { font-size: clamp(32px, 4vw, 48px); margin-bottom: 20px; }
+    .match-text p { font-size: 18px; color: var(--c-lavender); }
+    .match-interactive { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(12px); border-radius: 32px; padding: 40px; text-align: center; }
+    .score-circle { width: 140px; height: 140px; border-radius: 50%; border: 6px solid var(--c-hotpink); display: flex; align-items: center; justify-content: center; margin: 0 auto 32px; font-family: var(--font-head); font-size: 48px; font-weight: 900; color: var(--c-white); box-shadow: 0 0 32px rgba(236, 72, 153, 0.4); }
+    .score-circle span { font-size: 24px; opacity: 0.8; }
+    .progress-label { display: flex; justify-content: space-between; font-size: 14px; font-weight: 700; margin-bottom: 8px; color: var(--c-lavender); }
+    .progress-track { height: 14px; background: rgba(0,0,0,0.3); border-radius: 99px; margin-bottom: 20px; }
+    .progress-fill { height: 100%; border-radius: 99px; width: 0; transition: width 1.5s; }
+    .fill-skills { background: linear-gradient(90deg, var(--c-violet), var(--c-hotpink)); }
+    .fill-lang { background: linear-gradient(90deg, var(--c-orange), var(--c-honey)); }
+    .match-stars { font-size: 28px; margin-top: 32px; letter-spacing: 4px; }
+    .star { opacity: 0.2; transition: all 0.3s; }
+    .star.lit { opacity: 1; transform: scale(1.15); color: var(--c-honey); text-shadow: 0 0 12px var(--c-honey); }
+
+    /* Donation */
+    .donation-section { text-align: center; padding: 100px 0; }
+    .donation-section h2 { font-size: clamp(28px, 3.5vw, 40px); margin-bottom: 12px; }
+    .donation-section .sub { font-size: 16px; font-weight: 600; color: var(--c-violet-dark); margin-bottom: 48px; }
+    .cookie-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 40px; }
+    .cookie-card { background: var(--c-white); border: 2px solid var(--c-dark); border-radius: 24px; padding: 32px 20px; cursor: pointer; box-shadow: 4px 4px 0 var(--c-dark); transition: all 0.2s; opacity: 0; transform: translateY(20px); }
+    .cookie-card.visible { opacity: 1; transform: translateY(0); }
+    .cookie-card:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--c-dark); background: var(--c-pink); }
+    .cookie-card:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--c-dark); }
+    .cookie-emoji { font-size: 48px; margin-bottom: 12px; display: block; transition: 0.3s; }
+    .cookie-card:hover .cookie-emoji { transform: scale(1.1) rotate(5deg); }
+    .cookie-amount { font-family: var(--font-head); font-size: 20px; font-weight: 900; }
+    .cookie-card.selected { background: var(--c-honey); }
+
+    /* Footer */
+    footer { background: var(--c-dark); color: var(--c-cream); text-align: center; padding: 80px 24px 32px; border-radius: 48px 48px 0 0; }
+    footer h2 { font-size: clamp(32px, 4vw, 48px); margin-bottom: 40px; }
+    footer .btn-massive { background: var(--c-honey); color: var(--c-dark); border-color: var(--c-cream); box-shadow: 4px 4px 0 var(--c-cream); margin-bottom: 64px; }
+    .copyright { font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.4); padding-top: 32px; border-top: 1px solid rgba(255,255,255,0.1); }
+
+    .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .reveal.active { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 992px) {
+      .hero-layout, .features-layout, .match-container { grid-template-columns: 1fr; }
+      .hero-mockup-wrapper { max-width: 500px; margin: 40px auto 0; }
+      .hero-text { text-align: center; }
+      .bento-1, .bento-2, .bento-3 { grid-column: span 12; }
+      .bento-3 { flex-direction: column; text-align: center; }
+      .cookie-grid { grid-template-columns: repeat(2, 1fr); }
+      .feature-visuals { min-height: 300px; margin-top: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="mesh-bg"></div>
+  <div class="noise-overlay"></div>
+
+  <nav>
+    <a href="#" class="logo">JobMatch <span style="font-size: 16px;">🍪</span></a>
+    <div class="nav-actions">
+      <div class="lang-pill">
+        <button class="active" onclick="setLang('en')">EN</button>
+        <button onclick="setLang('ja')">JA</button>
+      </div>
+      <a href="https://jobmatch-app-blond.vercel.app" class="btn btn-nav">
+        <span class="lang-en">Launch App</span>
+        <span class="lang-ja">アプリを開く</span>
+      </a>
+    </div>
+  </nav>
+
+  <section class="hero reveal">
+    <div class="container hero-layout">
+      <div class="hero-text">
+        <h1 class="hero-title">
+          <span class="lang-en"><span class="hollow">The part-time platform</span><br>that actually <span class="accent">matches.</span></span>
+          <span class="lang-ja"><span class="hollow">ちゃんとマッチする</span><br><span class="accent">アルバイト</span>プラットフォーム。</span>
+        </h1>
+        <p class="hero-sub">
+          <span class="lang-en">Warm, bilingual, free. The smartest way to find a job around your university schedule.</span>
+          <span class="lang-ja">あたたかくて、日英対応で、無料。大学のスケジュールに合わせて仕事を見つける賢い方法。</span>
+        </p>
+        <a href="https://jobmatch-app-blond.vercel.app" class="btn btn-massive">
+          <span class="lang-en">🚀 Try JobMatch (it's free)</span>
+          <span class="lang-ja">🚀 無料で試す</span>
+        </a>
+      </div>
+      <div class="hero-mockup-wrapper">
+        <img src="assets/hero_mockup.png" alt="JobMatch App UI" class="hero-mockup">
+      </div>
+    </div>
+  </section>
+
+  <div class="trust-banner reveal">
+    <div class="container">
+      <p><span class="lang-en">Trusted by growing local businesses</span><span class="lang-ja">成長中の地元企業に信頼されています</span></p>
+      <div class="trust-logos">
+        <span>Café Tokyo</span>
+        <span>TechHub Japan</span>
+        <span>Global English</span>
+        <span>Matcha Logistics</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BRAND FEATURES SECTION -->
+  <section class="features-section container reveal">
+    <h2>
+      <span class="lang-en">The JobMatch Platform</span>
+      <span class="lang-ja">JobMatchが選ばれる理由</span>
+    </h2>
+    <div class="features-layout">
+      <div class="feature-tabs">
+        <button class="feature-tab active" onclick="switchTab(1)">
+          <h3>💬 <span class="lang-en">Direct Chat</span><span class="lang-ja">ダイレクトチャット</span></h3>
+          <p>
+            <span class="lang-en">Message employers directly in-app. No emails lost in spam.</span>
+            <span class="lang-ja">アプリ内で直接メッセージ。スパムに紛れることはありません。</span>
+          </p>
+        </button>
+        <button class="feature-tab" onclick="switchTab(2)">
+          <h3>⭐ <span class="lang-en">Peer Reviews</span><span class="lang-ja">相互レビュー</span></h3>
+          <p>
+            <span class="lang-en">Read reviews from other students before accepting a job.</span>
+            <span class="lang-ja">仕事を受ける前に他の学生からのレビューを確認できます。</span>
+          </p>
+        </button>
+        <button class="feature-tab" onclick="switchTab(3)">
+          <h3>🔒 <span class="lang-en">Privacy First</span><span class="lang-ja">プライバシー第一</span></h3>
+          <p>
+            <span class="lang-en">Your data stays yours. No selling to third parties.</span>
+            <span class="lang-ja">データはあなたのものです。第三者への販売はしません。</span>
+          </p>
+        </button>
+        <button class="feature-tab" onclick="switchTab(4)">
+          <h3>📅 <span class="lang-en">Smart Scheduling</span><span class="lang-ja">スマートシフト管理</span></h3>
+          <p>
+            <span class="lang-en">Filter roles that fit perfectly around your university classes.</span>
+            <span class="lang-ja">大学の授業にぴったり合う仕事を絞り込めます。</span>
+          </p>
+        </button>
+      </div>
+      
+      <div class="feature-visuals">
+        <div class="visual-item active" id="visual-1">
+          <img src="assets/chat_ui.png" alt="Chat Interface">
+        </div>
+        <div class="visual-item" id="visual-2">
+          <img src="assets/review_ui.png" alt="Peer Review Interface">
+        </div>
+        <div class="visual-item" id="visual-3">
+          <img src="assets/privacy_ui.png" alt="Privacy First Interface">
+        </div>
+        <div class="visual-item" id="visual-4">
+          <img src="assets/calendar_ui.png" alt="Smart Scheduling Interface">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bento-section container">
+    <div class="bento-grid">
+      <div class="bento-card bento-1 obs">
+        <div class="bento-icon">🎯</div>
+        <h3><span class="lang-en">Match, don't search.</span><span class="lang-ja">探さなくていい。見つけるから。</span></h3>
+        <p><span class="lang-en">We find your fit based on skills and language. Say goodbye to endless scrolling and rejections.</span><span class="lang-ja">スキルと言語に基づいてあなたに合う求人を見つけます。終わりのない検索と不採用にお別れを。</span></p>
+      </div>
+      <div class="bento-card bento-2 obs" style="transition-delay: 100ms;">
+        <div class="bento-icon">🍪</div>
+        <h3><span class="lang-en">Free. Forever.</span><span class="lang-ja">ずっと無料。</span></h3>
+        <p><span class="lang-en">Fees are out. Cookies are in. We rely on voluntary gratitude.</span><span class="lang-ja">手数料はなし。クッキーはあり。任意の感謝の気持ちで運営。</span></p>
+      </div>
+      <div class="bento-card bento-3 obs" style="transition-delay: 200ms;">
+        <div class="bento-content">
+          <h3><span class="lang-en">Built bilingual. For every student in Japan.</span><span class="lang-ja">最初からバイリンガル。日本のすべての学生のために。</span></h3>
+          <p><span class="lang-en">Full English and Japanese support natively integrated.</span><span class="lang-ja">英語と日本語の完全サポートをネイティブに統合。</span></p>
+        </div>
+        <div class="bento-icon" style="font-size: 32px; width: 64px; height: 64px; background: transparent; box-shadow: none;">🌍</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="match-section">
+    <div class="container match-container">
+      <div class="match-text reveal">
+        <h2><span class="lang-en">We don't just show listings.<br>We find your fit.</span><span class="lang-ja">求人を探すんじゃない。<br>あなたに合うバイトを見つける。</span></h2>
+        <p><span class="lang-en">Our algorithm blends your unique skills and language abilities to surface jobs where you'll thrive. It's smart, weighted, and deeply personalized.</span><span class="lang-ja">独自のスキルと言語能力を組み合わせ、あなたが活躍できる求人を提示します。スマートでパーソナライズされたアルゴリズムです。</span></p>
+      </div>
+      <div class="match-interactive obs-match">
+        <div class="score-circle"><div id="counter">0</div><span>%</span></div>
+        <div class="progress-label"><span class="lang-en">Skills Match</span><span class="lang-ja">スキルマッチ</span><span>80%</span></div>
+        <div class="progress-track"><div class="progress-fill fill-skills" id="bar-skills"></div></div>
+        <div class="progress-label"><span class="lang-en">Language Match</span><span class="lang-ja">言語マッチ</span><span>70%</span></div>
+        <div class="progress-track"><div class="progress-fill fill-lang" id="bar-lang"></div></div>
+        <div class="match-stars" id="star-container">
+          <span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="donation-section container reveal">
+    <h2><span class="lang-en">Other platforms take a cut.<br>We take cookies.</span><span class="lang-ja">他は手数料を取る。<br>私たちはクッキーでいい。</span></h2>
+    <p class="sub"><span class="lang-en">Pick your gratitude level. No pressure. No obligation.</span><span class="lang-ja">感謝レベルを選んでください。強制ではありません。</span></p>
+    <div class="cookie-grid">
+      <div class="cookie-card obs" onclick="selectCookie(this)"><span class="cookie-emoji">🍪</span><div class="cookie-amount">¥1k</div></div>
+      <div class="cookie-card obs" style="transition-delay: 50ms" onclick="selectCookie(this)"><span class="cookie-emoji">🍪🍪</span><div class="cookie-amount">¥2k</div></div>
+      <div class="cookie-card obs" style="transition-delay: 100ms" onclick="selectCookie(this)"><span class="cookie-emoji">🍪🍪🍪</span><div class="cookie-amount">¥3k</div></div>
+      <div class="cookie-card obs" style="transition-delay: 150ms" onclick="selectCookie(this)"><span class="cookie-emoji">🎂</span><div class="cookie-amount">¥5k</div></div>
+    </div>
+  </section>
+
+  <footer>
+    <h2 class="reveal"><span class="lang-en">JobMatch is free.<br>Always.</span><span class="lang-ja">JobMatchは無料。<br>いつまでも。</span></h2>
+    <a href="https://jobmatch-app-blond.vercel.app" class="btn btn-massive reveal"><span class="lang-en">🚀 Launch JobMatch</span><span class="lang-ja">🚀 JobMatchを開く</span></a>
+    <div class="copyright"><span class="lang-en">© 2026 JobMatch · Built for students in Japan</span><span class="lang-ja">© 2026 JobMatch · 日本の学生のために</span></div>
+  </footer>
+
+  <script>
+    function setLang(lang) {
+      document.documentElement.lang = lang;
+      document.querySelectorAll('.lang-pill button').forEach(b => b.classList.remove('active'));
+      const btn = Array.from(document.querySelectorAll('.lang-pill button')).find(b => b.textContent.toLowerCase() === lang);
+      if(btn) btn.classList.add('active');
+    }
+
+    function switchTab(id) {
+      document.querySelectorAll('.feature-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.visual-item').forEach(v => v.classList.remove('active'));
+      document.querySelectorAll('.feature-tab')[id-1].classList.add('active');
+      document.getElementById('visual-'+id).classList.add('active');
+    }
+
+    function selectCookie(el) {
+      document.querySelectorAll('.cookie-card').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible', 'active');
+          if (entry.target.classList.contains('obs-match')) {
+            animateMatch();
+            observer.unobserve(entry.target);
+          }
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.obs, .reveal, .obs-match').forEach(el => observer.observe(el));
+
+    function animateMatch() {
+      let count = 0;
+      const interval = setInterval(() => {
+        count += 2;
+        if(count >= 92) {
+          clearInterval(interval);
+          document.getElementById('counter').textContent = 92;
+          document.querySelectorAll('.star').forEach((star, i) => setTimeout(() => star.classList.add('lit'), i * 100));
+        } else {
+          document.getElementById('counter').textContent = count;
+        }
+      }, 25);
+      setTimeout(() => {
+        document.getElementById('bar-skills').style.width = '80%';
+        document.getElementById('bar-lang').style.width = '70%';
+      }, 200);
+    }
+    
+    window.addEventListener('DOMContentLoaded', () => setTimeout(() => document.querySelector('.hero').classList.add('active'), 100));
+  </script>
+</body>
+</html>
